@@ -1,0 +1,254 @@
+html {
+    height: 100%;
+}
+
+
+
+.container-0 {
+    display: flex;
+    flex-direction: column;
+    margin: 100px 128px 0px 128px;
+    justify-content: space-around;
+    align-content: space-between;
+
+
+}
+
+.container-1 {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.container-1-check-state {
+    justify-content: space-between;
+}
+
+.container-2 {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    transition: transform .2s ease-in-out;
+
+}
+
+.container-3 {
+    width: 40%;
+    margin-right: 0;
+    justify-self: flex-end;
+}
+
+.container-4 {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+}
+
+.ret-sentence-panel {
+    background: #ffffff;
+    box-shadow: 0 2px 60px 10px rgba(235, 235, 235, 0.84);
+    border-radius: 10px;
+    padding-bottom: 10px;
+}
+
+#input-window {
+    resize: none;
+    width: 100%;
+    height: 350px;
+    border: none;
+
+    font-family: Monaco;
+    font-size: 13px;
+    color: #577a96;
+    letter-spacing: 1px;
+    line-height: 20px;
+    /*margin-top: 10px;*/
+
+}
+
+#input-window:focus {
+    outline: none !important;
+    border: none;
+}
+
+.text-container {
+    background: #ffffff;
+    box-shadow: 0 0 20px 8px rgba(241, 241, 241, 0.75);
+    border-radius: 10px;
+}
+
+.result-container {
+    /*background: #e4e4e4;*/
+}
+
+#result-window {
+    resize: none;
+    width: 100%;
+    height: 350px;
+    border: none;
+
+    font-family: Monaco;
+    font-size: 13px;
+    color: #577a96;
+    letter-spacing: 1px;
+    line-height: 20px;
+    overflow-y: auto;
+    /*margin-top: 10px;*/
+
+}
+
+#result-window:focus {
+    outline: none !important;
+    border: none;
+}
+
+/* navbar*/
+
+.navbar {
+    padding: 0;
+    -webkit-transition: all .2s;
+    -moz-transition: all .2s;
+    transition: all .2s;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar-shrink {
+    background: rgba(208, 208, 208, 0.62);
+}
+
+.nav-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.nav-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-right: 128px;
+}
+
+#mainNav .navbar-brand {
+    font-family: NexaBold;
+    font-size: 30px;
+    background: rgba(79, 154, 221, 0);
+    border: none;
+    margin-left: 68px;
+    color: #577a96;
+
+    -webkit-transition: all .2s;
+    -moz-transition: all .2s;
+    transition: all .2s;
+}
+
+#mainNav .navbar-brand-index {
+    color: #fff;
+}
+
+#mainNav .navbar-brand-shrink {
+    color: #577a96;
+}
+
+/*#mainNav .navbar-brand-check {*/
+/*color: #577a96;*/
+/*}*/
+
+#mainNav .nav-item {
+    font-family: SingYiEG-Ultra-GB;
+    font-size: 10px;
+    margin-left: 40px;
+
+    -webkit-transition: all .2s;
+    -moz-transition: all .2s;
+    transition: all .2s;
+}
+
+.main-nav-check .nav-item {
+    color: #577a96 !important;
+}
+
+.main-nav-index .nav-item {
+    color: #FFFFFF;
+}
+
+#mainNav #nav-img {
+    width: 60px;
+    height: 60px;
+}
+
+#mainNav .nav-item {
+    font-family: YentiEG-Ultra-GB;
+}
+
+#mainNav .nav-item-shrink {
+    color: #577a96;
+}
+
+#mainNav .navbar-nav {
+    margin-right: 110px;
+}
+
+.main-nav-check {
+    background: #ffffff;
+    box-shadow: 0 2px 25px 10px rgba(235, 235, 235, 0.50);
+}
+
+.start-button-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    margin-top: 50px;
+}
+
+.button-normal {
+    border-radius: 10px;
+    background: #12aaea;
+
+    font-family: PingFangTC-Medium;
+    font-size: 18px;
+    color: #ffffff;
+    letter-spacing: 2px;
+    border: none;
+    padding-top: 11px;
+    padding-bottom: 11px;
+    box-shadow: 0 5px 10px 4px rgba(79, 78, 78, 0.16);
+    transition: all .2s ease-in-out;
+}
+
+.button-normal:hover {
+    cursor: pointer;
+}
+
+.button-main {
+    width: 300px;
+}
+
+.button-sub {
+    width: 70%;
+}
+
+.button-sub-2 {
+    background: #597a96;
+}
+
+.button-sub-2:hover {
+    background: #12aaea;
+}
+
+.buttons-panel {
+    margin-top: 50px;
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row;
+}
+
+#notification-container {
+    color: #ffffff;
+    font-size: 30px;
+    text-align: center;
+}

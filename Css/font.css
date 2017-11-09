@@ -1,0 +1,26 @@
+@font-face {
+    font-family: 'NexaBold';
+    src: url('/static/font/nexa_bold-webfont.woff2') format('woff2'),
+         url('/static/font/nexa_bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Monaco';
+    src: url('/static/font/monaco-webfont.woff2') format('woff2'),
+         url('/static/font/monaco-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+/*
+NexaBold (get)
+SingYiEG-Ultra-GB
+PingFangTC-Medium
+LinGothic-Medium
+Monaco (get)
+PingFangSC-Regular (get)
+*/

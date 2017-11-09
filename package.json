@@ -1,0 +1,15 @@
+{
+  "name": "misscut",
+  "version": "0.1.0",
+  "author": "pxxgogo",
+  "license": "MIT",
+  "main": "server.js",
+  "description": "Learn how to use create document, styles, and the range functionality.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.12.3",
+    "path": "^0.11.14"
+  }
+}

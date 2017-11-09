@@ -1,0 +1,77 @@
+.mt-6 {
+    color: red;
+}
+
+.mt-5 {
+    color: #ff7904;
+}
+
+.mt-4 {
+    color: #ffce03;
+}
+
+.mt-20 {
+    color: #25da14;
+}
+
+
+.pmt-6 {
+    color: red;
+}
+
+.pmt-5 {
+    color: #ff7904;
+}
+
+.pmt-4 {
+    color: #ffce03;
+}
+
+.pmt-20 {
+    color: #25da14;
+}
+
+
+#result-window .word > .candidate-table {
+    position: absolute;
+    color: #ffffff;
+    font-size: 11px;
+    z-index: 100;
+    padding: 3px;
+    margin-inside: 5px;
+    background: #96b4cd;
+    border:0 solid #597a96;
+    border-radius: 4px;
+    min-width: 62px;
+    display: inline-block;
+}
+
+#result-window .word > .candidate-table .entry:hover {
+    color: #1d1e1f;
+}
+
+#result-window .word > .candidate-table .title {
+    color: rgb(125, 179, 220);
+}
+
+#result-window .word > .hiding {
+    display: none;
+}
+
+#result-window .word:hover {
+    cursor: pointer;
+    background-color: #ddecf2;
+}
+
+.type-correct-word-btn {
+    color: #1eae8d;
+}
+
+.key-entry{
+    color: #B6FFE0;
+}
+
+.connected-state {
+    background: rgb(125, 179, 220);
+    color: #B6FFE0;
+}
