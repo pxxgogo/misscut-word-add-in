@@ -1,23 +1,26 @@
-﻿
+﻿var targetNode = null;
 function connectWordPanel(node) {
-    var mistakeNo = parseInt($(node).attr("wordno"));
-    var mistakeTag = "mistake-" + mistakeNo;
-    Word.run(function (context) {
-        var ccs = context.document.contentControls.getByTag(mistakeTag);
-        context.load(ccs);
-        return context.sync()
-            .then(function () {
-                for (var i = 0; i < ccs.items.length; i++) {
-                    ccs.items[i].select();
-                    //ccs.items[i].font.highlightColor = "#FFFFFF";
-                }
-            })
-            .then(context.sync);
-    }).catch(function (error) {
-        console.log('Error: ' + JSON.stringify(error));
-        console.log('Debug info: ' + JSON.stringify(error.debugInfo));
-    });
-
+    targetNode = node;
+    setTimeout(function () {
+        if (targetNode != node) return;
+        var mistakeNo = parseInt($(node).attr("wordno"));
+        var mistakeTag = "mistake-" + mistakeNo;
+        Word.run(function (context) {
+            var ccs = context.document.contentControls.getByTag(mistakeTag);
+            context.load(ccs);
+            return context.sync()
+                .then(function () {
+                    for (var i = 0; i < ccs.items.length; i++) {
+                        ccs.items[i].select();
+                        //ccs.items[i].font.highlightColor = "#FFFFFF";
+                    }
+                })
+                .then(context.sync);
+        }).catch(function (error) {
+            console.log('Error: ' + JSON.stringify(error));
+            console.log('Debug info: ' + JSON.stringify(error.debugInfo));
+        });
+    }, 400);
 }
 
 function disconnectWordPanel(node) {
