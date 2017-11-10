@@ -72,7 +72,7 @@
         $.support.cors = true;
         $.ajax({ // 提交文本，处理json
             type: 'post',
-            url: "https://www.misscut.top:8888/check_api",
+            url: "https://www.misscut.top/check_api",
             data: { 'text': text },
             datatype: "json",
             crossDomain: true,
