@@ -73,11 +73,11 @@
                     submitText(range.text);
                 })
         }).catch(function (error) {
-            console.log('Error: ' + JSON.stringify(error));
-            if (error instanceof OfficeExtension.Error) {
-                console.log('Debug info: ' + JSON.stringify(error.debugInfo));
-            }
-        });
+                console.log('Error: ' + JSON.stringify(error));
+                if (error instanceof OfficeExtension.Error) {
+                    console.log('Debug info: ' + JSON.stringify(error.debugInfo));
+                }
+            });
     }
 
     function finishRecheck() {
@@ -96,6 +96,7 @@
                 })
                 .then(context.sync).then(function () {
                     $("#finish-button").hide();
+                    $("#description").html("请选择待查错的文本");
                     $("#check-button").show();
                     $("#display-sentence-div").html("<div id='no-error-notification-div' style='display: none'>< img src= Images/hint.png'><div class='notification-info'>未找到文本错误</div></div >");
                 });
@@ -117,7 +118,7 @@
             beforeSend: function () {
                 $('#check-button').attr("disabled", "disabled");
                 $('body').loading({
-                    message: "正在努力校对中",
+                    message: "正在努力校对中...",
                     theme: 'dark'
                 });
 
@@ -129,23 +130,24 @@
                     $('body').loading('stop');
                     $("#check-button").hide();
                     $("#finish-button").show();
+                    $("#description").html("复查结束后可点击按钮删除标记");
                 } else {
                     $("#check-button").removeAttr("disabled");
                     $('body').loading('stop');
-                    errorHandler("服务器繁忙，请稍后再试");
+                    errorHandler("服务器繁忙，请稍后再试。");
                 }
             },
             error: function (e) {
                 $("#check-button").removeAttr("disabled");
                 $('body').loading('stop');
-                errorHandler("服务器繁忙，请稍后再试");
+                errorHandler("服务器繁忙，请稍后再试。");
                 console.log(e.responseText);
                 //showDebugInfo(e.responseText);
             }
         });
     }
 
-
+                 
 
     //$$(Helper function for treating errors, $loc_script_taskpane_home_js_comment34$)$$
     function errorHandler(error) {
