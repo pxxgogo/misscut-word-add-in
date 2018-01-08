@@ -19,13 +19,14 @@
                 return;
             }
 
-            // loadSampleData();
+            //loadSampleData();
 
             // 为突出显示按钮添加单击事件处理程序。
             $('#check-button').click(checkText);
             $("#finish-button").click(finishRecheck);
         });
     };
+
 
     function loadSampleData() {
         // 针对 Word 对象模型运行批处理操作。
@@ -72,11 +73,11 @@
                     submitText(range.text);
                 })
         }).catch(function (error) {
-                console.log('Error: ' + JSON.stringify(error));
-                if (error instanceof OfficeExtension.Error) {
-                    console.log('Debug info: ' + JSON.stringify(error.debugInfo));
-                }
-            });
+            console.log('Error: ' + JSON.stringify(error));
+            if (error instanceof OfficeExtension.Error) {
+                console.log('Debug info: ' + JSON.stringify(error.debugInfo));
+            }
+        });
     }
 
     function finishRecheck() {
@@ -113,27 +114,38 @@
             data: { 'text': text },
             datatype: "json",
             crossDomain: true,
+            beforeSend: function () {
+                $('#check-button').attr("disabled", "disabled");
+                $('body').loading({
+                    message: "正在努力校对中",
+                    theme: 'dark'
+                });
+
+            },
             success: function (ret) { // html元素动作，进度条……
                 if (ret.return_code === 0) {
                     getResult(ret, text);
+                    $("#check-button").removeAttr("disabled");
+                    $('body').loading('stop');
                     $("#check-button").hide();
                     $("#finish-button").show();
                 } else {
-                    //messageBanner.alert("系统繁忙, 请稍后重试!");
-                    //messageBanner.showBanner();
+                    $("#check-button").removeAttr("disabled");
+                    $('body').loading('stop');
+                    errorHandler("服务器繁忙，请稍后再试");
                 }
             },
             error: function (e) {
-                //messageBanner.alert("系统繁忙, 请稍后重试!");
-                //messageBanner.showBanner();
-
+                $("#check-button").removeAttr("disabled");
+                $('body').loading('stop');
+                errorHandler("服务器繁忙，请稍后再试");
                 console.log(e.responseText);
-                showDebugInfo(e.responseText);
+                //showDebugInfo(e.responseText);
             }
         });
     }
 
-                 
+
 
     //$$(Helper function for treating errors, $loc_script_taskpane_home_js_comment34$)$$
     function errorHandler(error) {
