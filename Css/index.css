@@ -190,3 +190,12 @@ img.check-hand-icon {
     color: #fff;
     background-color: #577a96;
 }
+
+.buttons-container {
+    display: flex;
+}
+
+#finish-button {
+    background: red;
+    border: red;
+}

@@ -1,123 +1,53 @@
-// JavaScript source code
+var tip = 0.1;
 
-// 对相同的错误做聚类处理
+function updateMistakes() {
+    _sentenceNo2MistakeNoDict = {};
+    for (var mistakeNo = 0; mistakeNo < _resultList.length; mistakeNo++) {
+        var mistake = _resultList[mistakeNo];
+        mistake["is_ignored"] = false;
+        mistake["is_modified"] = false;
+        mistake["modified_word"] = "";
+        var score = mistake["highest_score"];
+        var finalLevel = 0; 
+        for (var level = MISTAKES_THRESHOLD.length - 1; level >= 0; level--) {
+            if (score > MISTAKES_THRESHOLD[level]) {
+                finalLevel = level;
+                break;
+            } 
+        }
+        mistake["mistake_level"] = finalLevel;
 
-
-function generateSentenceOrWord2MistakesIndexDict() {
-    for (var i = 0; i < mistakeWordsList.length; i++) {
-        var mistakeWord = mistakeWordsList[i];
-        var wordNo = mistakeWord.No;
-        var sentenceNo = mistakeWord.sentenceNo;
-        word2MistakeIndexDict[wordNo] = i;
-        if (sentence2MistakeIndexDict[sentenceNo]) {
-            sentence2MistakeIndexDict[sentenceNo].push(i);
+        var sentenceNo = mistake["sentence_No"];
+        if (_sentenceNo2MistakeNoDict[sentenceNo]) {
+            _sentenceNo2MistakeNoDict[sentenceNo].push(mistakeNo);
         } else {
-            sentence2MistakeIndexDict[sentenceNo] = [i];
+            _sentenceNo2MistakeNoDict[sentenceNo] = [mistakeNo];
         }
     }
-    // console.log(sentence2MistakeIndexDict);
-
 }
 
 
-function sortMistakeWordsList() {
-    mistakeWordsList.sort(function (x, y) {
-        if (x.bestScore < y.bestScore)
-            return 1;
-        else if (x.bestScore > y.bestScore)
-            return -1;
-        else return 0;
-    });
+function getResult(ret, inputText) {
+    _resultList = ret.result;
+    _resultListBackUp = JSON.parse(JSON.stringify(ret)).result;
+    updateMistakes();
+    console.log(_resultList.length, _resultList[0]["mistake_level"]);
+    if (_resultList.length === 0 || _resultList[0]["mistake_level"] < 1) {
+        $("#no-error-notification-div").show();
+        return;
+    } else {
+        $("#no-error-notification-div").hide();
+    }
+    _checkingFlag = true;
+    inputText = strQ2B(inputText);
+    _sentenceList = createSentencesList(inputText);
+    //console.log(_sentenceList);
+    console.log(_resultList);
+    //console.log(_resultList);
+    hightlightRet();
+    printSentences();
 }
 
-// 用于判断两个错词相同
-// 在getSameWrongSameRecommendationDict()中调用
-function findWordInmistakesClusterList(mistakesClusterList, mistakeWord) {
-    for (var i = 0; i < mistakesClusterList.length; i++) {
-        if (mistakesClusterList[i].mistakeWordName === mistakeWord.name && mistakesClusterList[i].recommendedWordName === mistakeWord.recommendations[0].n) {
-            return i;
-        }
-    }
-    return -1;
-}
 
 
-function getSameWrongSameRecommendationDict() {
-    var mistakesClusterList = [];
-    // console.log(maxIndex);
-    for (var i = 0; i < mistakeWordsList.length; i++) {
-        // 用暴力的方法找出第一个相同的词
-        var mistakeWord = mistakeWordsList[i];
-        // console.log(mistakeWord);
-        var retNo = findWordInmistakesClusterList(mistakesClusterList, mistakeWord);
-        if (retNo === -1) {
-            var mistakeWordNoList = [];
-            mistakeWordNoList.push(i);
-            mistakesClusterList.push(new MistakesCluster(mistakeWord.name, mistakeWord.recommendations[0].n, mistakeWordNoList, mistakeWord.bestScore));
-        } else {
-            mistakesClusterList[retNo].mistakeWordNoList.push(i);
-            mistakesClusterList[retNo].score += mistakeWord.bestScore;
-        }
-    }
-    mistakesClusterList.sort(function (x, y) {
-        if (x.mistakeWordNoList.length < y.mistakeWordNoList.length)
-            return 1;
-        else if (x.mistakeWordNoList.length > y.mistakeWordNoList.length)
-            return -1;
-        else {
-            if (x.score > y.score)
-                return -1;
-            else if (x.score < y.score)
-                return 1;
-            else return 0;
-        }
-    });
-    return mistakesClusterList;
-}
-
-function analyze(ret) {
-    var sentenceNo = -1;
-    var text = "";
-    var positionInSentence = 0;
-    sentenceDict = {};
-    mistakeWordsList = [];
-    word2MistakeIndexDict = {};
-    sentence2MistakeIndexDict = {};
-    sentenceBeginIndexDict = {};
-    LIndex = 0;
-    maxSentenceNo = 0;
-    var beginIndex = 0;
-    // 生成每句话
-    for (var i = 0; i < ret.length; i++) {
-        if (ret[i].s !== sentenceNo) {
-            sentenceDict[sentenceNo] = text;
-            sentenceBeginIndexDict[sentenceNo] = beginIndex;
-            // console.log(text);
-            sentenceNo = ret[i].s;
-            text = "";
-            beginIndex = i;
-            positionInSentence = 0;
-        }
-        if (ret[i].t > 0 && ret[i].t <= 9) {
-            var type = "type" + ret[i];
-            var Num = 3;
-            mistakeWordsList.push(new MistakeWord(ret[i].n, ret[i].r, i, sentenceNo, positionInSentence, ret[i].t));
-            text += ret[i].n;
-            positionInSentence += ret[i].n.length;
-            continue;
-        }
-        text += ret[i].n;
-        positionInSentence += ret[i].n.length;
-    }
-    if (text !== "") {
-        sentenceDict[sentenceNo] = text;
-        sentenceBeginIndexDict[sentenceNo] = beginIndex;
-    }
-    maxSentenceNo = sentenceNo;
-    sortMistakeWordsList();
-    generateSentenceOrWord2MistakesIndexDict();
-    mistakesClusterList = getSameWrongSameRecommendationDict();
-     //console.log(mistakeWordsList);
-     //console.log(sentenceDict);
-}
-
+    

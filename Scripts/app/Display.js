@@ -1,71 +1,70 @@
-﻿function generateHtmlSentence(sentence, mistakeWord) {
+﻿function generateHtmlSentence(mistakeNo) {
+    var mistake = _resultList[mistakeNo];
+    var sentence = _sentenceList[mistake["sentence_No"]];
     var keyClass = "";
-    if (mistakeWord.isModified) {
+    //console.log(candidate);
+    var showingWord = mistake["raw_word"]
+    if (mistake["is_modified"]) {
         keyClass = "mt-20";
+        showingWord = mistake["modified_word"]
     } else {
-        keyClass = "mt-" + mistakeWord.type;
+        keyClass = "mt-" + mistake["mistake_level"];
     }
-    if (mistakeWord.isIgnored)
+    if (mistake["is_ignored"])
         keyClass += " mis-judge-state";
-    return sentence.substring(0, mistakeWord.positionInSentence) + "<span class='keyword " + keyClass + "' id='w-" + mistakeWord.No + "'>" + mistakeWord.modifiedName + "</span>" + sentence.substring(mistakeWord.positionInSentence + mistakeWord.modifiedName.length);
+    return sentence.substring(0, mistake["position_in_sentence"]) + "<span class='keyword " + keyClass + "' id='w-" + mistakeNo + "'>" + showingWord + "</span>" + sentence.substring(mistake["position_in_sentence"] + showingWord.length);
 }
 
-function generateHtmlSentenceDiv(mistakeWordNo) {
+function generateHtmlSentenceDiv(mistakeNo) {
     var html = "";
-    var mistakeWord = mistakeWordsList[mistakeWordNo];
+    var mistake = _resultList[mistakeNo];
 
     var moreRecommendationBtnStyle = "";
     var misjudgeBtnStyle = "";
     var undoBtnStyle = "";
     var recoverStateBtnStyle = "";
-    var confirmACBtnStyle = "";
-    var cancelACBtnStyle = "";
 
     var subKeyClass = "";
     var mainKeyClass = "";
 
-    if (mistakeWord.isIgnored) {
+    if (mistake["is_ignored"]) {
         mainKeyClass = "mis-judge-sentence-div";
         subKeyClass = "mis-judge-state";
 
         misjudgeBtnStyle = "style='display: none'";
         undoBtnStyle = "style='display: none'";
-        confirmACBtnStyle = "style='display: none'";
-        cancelACBtnStyle = "style='display: none'";
 
-    } else if (mistakeWord.isModified) {
+    } else if (mistake["is_modified"]) {
 
         misjudgeBtnStyle = "style='display: none'";
         moreRecommendationBtnStyle = "style='display: none'";
         recoverStateBtnStyle = "style='display: none'";
-        confirmACBtnStyle = "style='display: none'";
-        cancelACBtnStyle = "style='display: none'";
 
     } else {
         undoBtnStyle = "style='display: none'";
         recoverStateBtnStyle = "style='display: none'";
-        confirmACBtnStyle = "style='display: none'";
-        cancelACBtnStyle = "style='display: none'";
     }
 
-    html += "<div class='sort-sentence-div " + mainKeyClass + " ' id='mistake-word-" + mistakeWordNo + "' wordno='" + mistakeWordNo + "' onmouseenter='connectWordPanel(this)' onmouseleave='disconnectWordPanel(this)'>" +
+    html += "<div class='sort-sentence-div " + mainKeyClass + " ' id='mistake-word-" + mistakeNo + "' wordno='" + mistakeNo + "' onmouseenter='connectWordPanel(this)' onmouseleave='disconnectWordPanel(this)'>" +
         "<div class='wrong-sentence-content-div " + subKeyClass + "'>" +
-        generateHtmlSentence(sentenceDict[mistakeWord.sentenceNo], mistakeWord) +
+        generateHtmlSentence(mistakeNo, 0) +
         "</div><div class='sentence-description " + subKeyClass + "'><div class='sentence-description-left'><div class='sentence-description-hand'><img src='/Images/check_hand_icon@3x.png' class='hand-icon'/></div><div class='possible-alters-div'>";
-    for (var j = 0; j < mistakeWord.recommendations.length; j++) {
-        if (mistakeWord.recommendations[j].s < scoreThreshold) break;
-        html += "<span class='possible-alters-btn clickable' onclick='chooseCandidate(this)'>" + mistakeWord.recommendations[j].n + "</span> ";
+    for (var j = 0; j < mistake["candidates"].length; j++) {
+        let candidate = mistake["candidates"][j];
+        if (candidate["scores"][candidate["scores"].length - 1] < CANDIDATE_DISPLAY_THRESHOLD || j >= CANDIDATES_MAX_SHOWING_NUM) break;
+        html += "<span class='possible-alters-btn clickable' onclick='chooseCandidate(this, " + mistakeNo + ", " + j + ")'>" + candidate["candidate"] + "</span> ";
     }
-    html += "</div></div><div class='sentence-description-right'><div class='mis-judge-btn special-alters clickable' onclick='misJudge(this)' " + misjudgeBtnStyle + ">误判</div>" +
-        "<div class='recovery-btn special-alters clickable' onclick='recoverState(this)' " + recoverStateBtnStyle + ">恢复</div><div class='undo-btn special-alters clickable' onclick='undo(this)' " + undoBtnStyle + ">撤销修改</div>" +
-        "<div class='confirm-AC-btn special-alters clickable' onclick='confirmAC(this)' " + confirmACBtnStyle + ">确认修改</div><div class='cancel-AC-btn special-alters clickable' onclick='cancelAC(this)' " + cancelACBtnStyle + ">返回</div></div></div></div>";
+    html += "</div></div><div class='sentence-description-right'><div class='mis-judge-btn special-alters clickable' onclick='misJudge(this, " + mistakeNo + ")' " + misjudgeBtnStyle + ">误判</div>" +
+        "<div class='recovery-btn special-alters clickable' onclick='recoverState(this, " + mistakeNo + ")' " + recoverStateBtnStyle + ">恢复</div><div class='undo-btn special-alters clickable' onclick='undo(this, " + mistakeNo + ")' " + undoBtnStyle + ">撤销修改</div>" +
+        "</div></div></div>";
 
     return html
 }
 
 function printSentences() {
     var html = "";
-    for (var i = 0; i < mistakeWordsList.length; i++) {
+    for (var i = 0; i < _resultList.length; i++) {
+        if (_resultList[i]["mistake_level"] === 0) continue;
         html += generateHtmlSentenceDiv(i);
     }
     $("#display-sentence-div").html(html);
