@@ -19,7 +19,7 @@
                 return;
             }
 
-            loadSampleData();
+            // loadSampleData();
 
             // 为突出显示按钮添加单击事件处理程序。
             $('#check-button').click(checkText);
