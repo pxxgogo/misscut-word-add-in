@@ -73,14 +73,37 @@
                     submitText(range.text);
                 })
         }).catch(function (error) {
-                console.log('Error: ' + JSON.stringify(error));
-                if (error instanceof OfficeExtension.Error) {
-                    console.log('Debug info: ' + JSON.stringify(error.debugInfo));
-                }
-            });
+            console.log('Error: ' + JSON.stringify(error));
+            if (error instanceof OfficeExtension.Error) {
+                console.log('Debug info: ' + JSON.stringify(error.debugInfo));
+            }
+        });
     }
 
     function finishRecheck() {
+        var resultsJson = JSON.stringify({ 'sentences_list': _sentenceList, "mistakes": _resultList });
+        $.ajax({ // 提交文本，处理json
+            type: 'post',
+            url: "https://www.misscut.top/send_results_from_word",
+            data: { 'ret': resultsJson },
+            datatype: "json",
+            crossDomain: true,
+            success: function (ret) { // html元素动作，进度条……
+                if (ret.return_code === 0) {
+                    removeTags();
+                } else {
+                    errorHandler("服务器繁忙，请稍后再试。");
+                }
+            },
+            error: function (e) {
+                errorHandler("服务器繁忙，请稍后再试。");
+                console.log(e.responseText);
+            }
+        });
+
+    }
+
+    function removeTags() {
         Word.run(function (context) {
             var ccs = context.document.contentControls.getByTypes(["RichText"]);
             context.load(ccs, 'text,tag');
@@ -103,12 +126,16 @@
                     $("#description").html("请选择待查错的文本");
                     $("#check-button").show();
                     $("#display-sentence-div").html("<div id='no-error-notification-div' style='display: none'>< img src= Images/hint.png'><div class='notification-info'>未找到文本错误</div></div >");
+
+
+
                 });
         }).catch(function (error) {
             console.log('Error: ' + JSON.stringify(error));
             console.log('Debug info: ' + JSON.stringify(error.debugInfo));
         });
     }
+
     function submitText(text) {
         if (text.length === 0) return;
         $.support.cors = true;
@@ -150,7 +177,7 @@
         });
     }
 
-                 
+
 
     //$$(Helper function for treating errors, $loc_script_taskpane_home_js_comment34$)$$
     function errorHandler(error) {
