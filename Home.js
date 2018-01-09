@@ -89,7 +89,11 @@
                     for (var i = 0; i < ccs.items.length; i++) {
                         if (ccs.items[i].tag.substring(0, 8) === "mistake-") {
                             ccs.items[i].font.highlightColor = "#FFFFFF";
-                            ccs.items[i].delete(true);
+                            if (ccs.items[i].text === "{空}") {
+                                ccs.items[i].delete(false);
+                            } else {
+                                ccs.items[i].delete(true);
+                            }
 
                         }
                     }
@@ -105,7 +109,6 @@
             console.log('Debug info: ' + JSON.stringify(error.debugInfo));
         });
     }
-
     function submitText(text) {
         if (text.length === 0) return;
         $.support.cors = true;

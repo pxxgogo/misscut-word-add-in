@@ -2,7 +2,7 @@
 function connectWordPanel(node) {
     targetNode = node;
     setTimeout(function () {
-        if (targetNode != node) return;
+        if (targetNode !== node) return;
         var mistakeNo = parseInt($(node).attr("wordno"));
         var mistakeTag = "mistake-" + mistakeNo;
         Word.run(function (context) {
@@ -12,7 +12,7 @@ function connectWordPanel(node) {
                 .then(function () {
                     for (var i = 0; i < ccs.items.length; i++) {
                         ccs.items[i].select();
-                        console.log(mistakeNo, i, ccs.items[i].text);
+                        //console.log(mistakeNo, i, ccs.items[i].text);
                         //ccs.items[i].font.highlightColor = "#FFFFFF";
                     }
                 })
@@ -44,20 +44,12 @@ function checkInputLength(which, mode) {
         $(which).attr('size', iCount.length);
 }
 
-function hoverOnCandidate(node, mistakeWordNo, candidateNo) {
-    var contentNode = $(node).parents()[3].children[0];
-    console.log(contentNode);
-    var html = generateHtmlSentence(mistakeWordNo);
-    $(contentNode).html(html);
-}
-
-
 // fixed  all above
 function modifySentence(mistake, oldWordName, newWordName) {
     var sentenceNo = mistake["sentence_No"];
     var sentence = _sentenceList[sentenceNo];
     _sentenceList[sentenceNo] = sentence.substring(0, mistake["position_in_sentence"]) + newWordName + sentence.substring(mistake["position_in_sentence"] + oldWordName.length);
-    console.log("new sentence", _sentenceList[sentenceNo], mistake["position_in_sentence"], newWordName, oldWordName);
+    //console.log("new sentence", _sentenceList[sentenceNo], mistake["position_in_sentence"], newWordName, oldWordName);
     updatePositionInSentences(sentenceNo, mistake["position_in_sentence"], oldWordName.length, newWordName.length);
     updateSentencePanelSentenceShowing(sentenceNo);
 }
@@ -65,7 +57,7 @@ function modifySentence(mistake, oldWordName, newWordName) {
 function modifySentence_normalWord(sentenceNo, sentencePosition, oldWord, candidateContent) {
     var sentence = sentenceDict[sentenceNo];
     sentenceDict[sentenceNo] = sentence.substring(0, sentencePosition) + candidateContent + sentence.substring(sentencePosition + oldWord.length);
-    console.log("new sentence", sentenceDict[sentenceNo]);
+    //console.log("new sentence", sentenceDict[sentenceNo]);
     updatePositionInSentences(sentenceNo, sentencePosition, oldWord.length, candidateContent.length);
     updateSentencePanelSentenceShowing(sentenceNo);
 
@@ -196,10 +188,10 @@ function chooseCandidate(node, mistakeNo, candidateNo) {
     var candidate = mistake["candidates"][candidateNo];
     var candidateContent = candidate["candidate"];
     var oldWord = mistake["raw_word"];
-    mistake["modified_name"] = candidateContent;
+    mistake["modified_word"] = candidateContent;
     mistake["is_modified"] = true;
     modifySentence(mistake, oldWord, candidateContent);
-    
+
 
     // Update wordPanel
     updateWordPanel_chooseCandidate(mistakeNo, candidateContent);
@@ -241,8 +233,8 @@ function undo(node, mistakeNo) {
     var possibleNodes = parent.firstChild.childNodes;
     var mistake = _resultList[mistakeNo];
     mistake["is_modified"] = false;
-    modifySentence(mistake, mistake["modified_name"], mistake["raw_word"]);
-    mistake["modified_name"] = ""
+    modifySentence(mistake, mistake["modified_word"], mistake["raw_word"]);
+    mistake["modified_word"] = ""
     // Update wordPanel
     updateWordPanel_undo(mistakeNo);
     $(parent).find(".mis-judge-btn").show();

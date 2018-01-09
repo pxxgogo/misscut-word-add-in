@@ -35,7 +35,7 @@ function isSymbol(sentence) {
 function createSentencesList(inputText) {
     var sentenceList = [];
     var paragraphList = inputText.split(NEW_LINE_PATTERN);
-    console.log(paragraphList);
+    //console.log(paragraphList);
     for (let i = 0; i < paragraphList.length; i++) {
         let para = paragraphList[i];
         if (para === "" || para.charCodeAt(0) === 13 || para.charCodeAt(0) === 10) {

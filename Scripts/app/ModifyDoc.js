@@ -28,7 +28,7 @@ function hightlightRet() {
             .then(function () {
                 for (var mistakeNo = 0; mistakeNo < _resultList.length; mistakeNo++) {
                     var mistake = _resultList[mistakeNo];
-                    console.log(mistake);
+                    //console.log(mistake);
                     var sentence = _sentenceList[mistake["sentence_No"]];
                     var sameWordNo = getSameWordNo(mistake["sentence_No"], mistake);
                     if (sameWordNo < 0) continue;
@@ -71,7 +71,7 @@ function hightlightRet() {
                         var cc = wordSearchRet.items[sameWordNo].insertContentControl();
                         cc.tag = "mistake-" + mistakeNo;  // This value is used in another part of this sample.
                         cc.title = mistake["candidates"][0]["candidate"];
-                        console.log("tag: ", cc.tag, "word: ", mistake["raw_word"]);
+                        //console.log("tag: ", cc.tag, "word: ", mistake["raw_word"]);
                     }
                 }
             }).then(context.sync);
