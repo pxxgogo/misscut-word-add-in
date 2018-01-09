@@ -42,7 +42,6 @@ function getResult(ret, inputText) {
     inputText = strQ2B(inputText);
     _sentenceList = createSentencesList(inputText);
     //console.log(_sentenceList);
-    console.log(_resultList);
     //console.log(_resultList);
     hightlightRet();
     printSentences();

@@ -13,25 +13,20 @@
             messageBanner.hideBanner();
 
             // 如果未使用 Excel 2016，请使用回退逻辑。
-            if (!Office.context.requirements.isSetSupported('WordApi', '1.1')) {
-                $("#template-description").text("此示例显示选定的文本。");
-                $('#button-text').text("显示!");
-                $('#button-desc').text("显示选定的文本");
-
-                $('#check-button').click(checkText);
+            if (!Office.context.requirements.isSetSupported('WordApi', '1.3')) {
+                $("#description").text("请更新您的word版本，方能使用MissCut插件");
+                $('#check-button').attr("disabled", "disabled");
                 return;
             }
 
-            $("#template-description").text("提交待查错文本，我们将会直接反馈给您文本错误信息。");
-            $('#button-text').text("提交文本");
-            $('#button-desc').text("");
-
-            loadSampleData();
+            //loadSampleData();
 
             // 为突出显示按钮添加单击事件处理程序。
             $('#check-button').click(checkText);
+            $("#finish-button").click(finishRecheck);
         });
     };
+
 
     function loadSampleData() {
         // 针对 Word 对象模型运行批处理操作。
@@ -52,141 +47,137 @@
             .catch(errorHandler);
     }
 
+    function showDebugInfo(text) {
+        Word.run(function (context) {
+            // 为文档正文创建代理对象。
+            var body = context.document.body;
+
+            // 将清空正文内容的命令插入队列。
+            body.clear();
+            // 将在 Word 文档正文结束位置插入文本的命令插入队列。
+            body.insertText(text,
+                Word.InsertLocation.end);
+
+            // 通过执行排队的命令来同步文档状态，并返回承诺以表示任务完成。
+            return context.sync();
+        })
+            .catch(errorHandler);
+    }
+
     function checkText() {
         Word.run(function (context) {
-            // 将获取当前选定内容的命令插入队列，然后
-            // 创建包含结果的代理范围对象。
             var range = context.document.getSelection();
-
-            // 此变量将保存最长单词的搜索结果。
-            var searchResults;
-
-            // 将加载范围选择结果的命令插入队列。
             context.load(range, 'text');
-
-            // 通过执行排队的命令来同步文档状态
-            // 并返回承诺以表示任务完成。
             return context.sync()
                 .then(function () {
-                    // 获取选定内容中最长的单词。
-                    //range.insertText("TEST", Word.InsertLocation.before);
-                    var text = range.text;
-                    $.support.cors = true;
-                    $.ajax({ // 提交文本，处理json
-                        type: 'post',
-                        url: "http://www.misscut.cn:8001/about_test",
-                        data: { 'text': text },
-                        datatype: "json",
-                        crossDomain: true,
-                        async: false,
-                        beforeSend: function () {
+                    submitText(range.text);
+                })
+        }).catch(function (error) {
+            console.log('Error: ' + JSON.stringify(error));
+            if (error instanceof OfficeExtension.Error) {
+                console.log('Debug info: ' + JSON.stringify(error.debugInfo));
+            }
+        });
+    }
 
-                        },
-                        success: function (ret) { // html元素动作，进度条……
+    function finishRecheck() {
+        var resultsJson = JSON.stringify({ 'sentences_list': _sentenceList, "mistakes": _resultList });
+        $.ajax({ // 提交文本，处理json
+            type: 'post',
+            url: "https://www.misscut.top/send_results_from_word",
+            data: { 'ret': resultsJson },
+            datatype: "json",
+            crossDomain: true,
+            success: function (ret) { // html元素动作，进度条……
+                if (ret.return_code === 0) {
+                    removeTags();
+                } else {
+                    errorHandler("服务器繁忙，请稍后再试。");
+                }
+            },
+            error: function (e) {
+                errorHandler("服务器繁忙，请稍后再试。");
+                console.log(e.responseText);
+            }
+        });
 
-                            // $("#correct-judge-num").html(0);
-                            // 非常重要
-                            var result = ret; // 浅拷贝
-                            if (result.return_code === 0) {
-                                operateResult(result, range, context);
+    }
+
+    function removeTags() {
+        Word.run(function (context) {
+            var ccs = context.document.contentControls.getByTypes(["RichText"]);
+            context.load(ccs, 'text,tag');
+            return context.sync()
+                .then(function () {
+                    for (var i = 0; i < ccs.items.length; i++) {
+                        if (ccs.items[i].tag.substring(0, 8) === "mistake-") {
+                            ccs.items[i].font.highlightColor = "#FFFFFF";
+                            if (ccs.items[i].text === "{空}") {
+                                ccs.items[i].delete(false);
                             } else {
-                                //messageBanner.alert("系统繁忙, 请稍后重试!");
-                                //messageBanner.showBanner();
+                                ccs.items[i].delete(true);
                             }
-                        },
-                        error: function (e) {
-                            //messageBanner.alert("系统繁忙, 请稍后重试!");
-                            //messageBanner.showBanner();
-                            console.log(e);
 
                         }
-                    });
-                    //var words = range.text.split(/\s+/);
-                    //var longestWord = words.reduce(function (word1, word2) { return word1.length > word2.length ? word1 : word2; });
-
-                    //// 将搜索命令排队。
-                    //searchResults = range.search(longestWord, { matchCase: true, matchWholeWord: true });
-
-                    //// 将加载结果的字体属性的命令插入队列。
-                    //context.load(searchResults, 'font');
+                    }
                 })
-                .then(context.sync)
-            //.then(function () {
-            //    // 将突出显示搜索结果的命令插入队列。
-            //    searchResults.items[0].font.highlightColor = '#FFFF00'; // 黄色
-            //    searchResults.items[0].font.bold = true;
-            //})
-            //.then(context.sync);
-        })
-            .catch(function (error) {
-                console.log('Error: ' + JSON.stringify(error));
-                if (error instanceof OfficeExtension.Error) {
-                    console.log('Debug info: ' + JSON.stringify(error.debugInfo));
-                }
-            });
+                .then(context.sync).then(function () {
+                    $("#finish-button").hide();
+                    $("#description").html("请选择待查错的文本");
+                    $("#check-button").show();
+                    $("#display-sentence-div").html("<div id='no-error-notification-div' style='display: none'>< img src= Images/hint.png'><div class='notification-info'>未找到文本错误</div></div >");
+
+
+
+                });
+        }).catch(function (error) {
+            console.log('Error: ' + JSON.stringify(error));
+            console.log('Debug info: ' + JSON.stringify(error.debugInfo));
+        });
     }
 
-    function operateResult(ret, range, context) {
-        resultList = ret.result;
-        resultListBackUp = JSON.parse(JSON.stringify(ret)).result;
-        var resultForBuilding = JSON.parse(JSON.stringify(ret)).result;
-        checkingFlag = true;
-        analyze(resultForBuilding);
-        //generateWordsPanel();
-        updateResult();
-        hightlightRet(resultList, range, context);
-    }
+    function submitText(text) {
+        if (text.length === 0) return;
+        $.support.cors = true;
+        $.ajax({ // 提交文本，处理json
+            type: 'post',
+            url: "https://www.misscut.top/check_api_v5",
+            data: { 'text': text },
+            datatype: "json",
+            crossDomain: true,
+            beforeSend: function () {
+                $('#check-button').attr("disabled", "disabled");
+                $('body').loading({
+                    message: "正在努力校对中...",
+                    theme: 'dark'
+                });
 
-    var colors = ["red", "yellow", "orange"];
-
-    function hightlightRet(resultList, range, context) {
-        var retText = "";
-        for (var i = 0; i < resultList.length; i++) {
-            var ret = resultList[i];
-            //console.log(ret);
-
-            //retText += JSON.stringify(ret);
-
-            if (ret['t'] < 9 && ret['t'] > 0)
-                retText += "<span style=\"background: " + colors[6 - ret['t']] + "\">" + ret['n'] + "</span>";
-            else 
-                if (ret['n'] === "\n" || ret['n'] === '\r') {
-                    retText += "<br />\n";
-                } else if (ret['n'] === " ")
-                    retText += "&nbsp;"; 
-                  else
-                    retText += ret['n'];
-        }
-        range.insertHtml(retText, "Replace");
-    }
-
-    function updateResult() {
-        // console.log(resultShowingType);
-        // console.log(mistakeWordsList);
-        if (mistakeWordsList.length === 0) {
-            printNoErrorNotification();
-            return;
-        }
-        switch (resultShowingType) {
-            case 0: // 普通模式
-                printSentences(mistakeWordsList);
-                break;
-            //case 1:  // 聚类模式
-            //    clusterWrongWords(mistakesClusterList);
-        }
-    }
-
-
-    function displaySelectedText() {
-        Office.context.document.getSelectedDataAsync(Office.CoercionType.Text,
-            function (result) {
-                if (result.status === Office.AsyncResultStatus.Succeeded) {
-                    showNotification('选定的文本为:', '"' + result.value + '"');
+            },
+            success: function (ret) { // html元素动作，进度条……
+                if (ret.return_code === 0) {
+                    getResult(ret, text);
+                    $("#check-button").removeAttr("disabled");
+                    $('body').loading('stop');
+                    $("#check-button").hide();
+                    $("#finish-button").show();
+                    $("#description").html("复查结束后可点击按钮删除标记");
                 } else {
-                    showNotification('错误:', result.error.message);
+                    $("#check-button").removeAttr("disabled");
+                    $('body').loading('stop');
+                    errorHandler("服务器繁忙，请稍后再试。");
                 }
-            });
+            },
+            error: function (e) {
+                $("#check-button").removeAttr("disabled");
+                $('body').loading('stop');
+                errorHandler("服务器繁忙，请稍后再试。");
+                console.log(e.responseText);
+                //showDebugInfo(e.responseText);
+            }
+        });
     }
+
+
 
     //$$(Helper function for treating errors, $loc_script_taskpane_home_js_comment34$)$$
     function errorHandler(error) {
